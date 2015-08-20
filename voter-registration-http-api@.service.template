@@ -1,0 +1,36 @@
+[Unit]
+Description=voter-registration-http-api
+After=docker.service
+Requires=docker.service
+After=consul@%i.service
+Wants=consul@%i.service
+After=rabbitmq@%i.service
+Requires=rabbitmq@%i.service
+After=wildfly@%i.service
+Requires=wildfly@%i.service
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=10m
+TimeoutStopSec=10m
+
+Environment=DOCKER_REPO=
+Environment=VERSION=
+Environment=CONTAINER=
+Environment=HOME=/root
+
+ExecStartPre=-/usr/bin/docker kill ${CONTAINER}
+ExecStartPre=-/usr/bin/docker rm ${CONTAINER}
+ExecStartPre=/bin/bash -c 'sleep 2 && curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/buildkite/dockercfg?raw -o /root/.dockercfg'
+ExecStartPre=/usr/bin/docker pull ${DOCKER_REPO}:${VERSION}
+
+ExecStart=/bin/bash -c 'docker run --name ${CONTAINER} --restart=always \
+  --link rabbitmq:rabbitmq \
+  --link wildfly:wildfly \
+  --env ALLOWED_ORIGINS=$(curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/voter-registration-http-api/allowed-origins?raw) \
+  ${DOCKER_REPO}:${VERSION}'
+
+ExecStop=/usr/bin/docker stop ${CONTAINER}
+
+[X-Fleet]
+MachineOf=wildfly@%i.service

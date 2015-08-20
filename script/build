@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+if [[ -z $SERVICE ]]; then
+  SERVICE=${PWD##*/}
+fi
+
+if [[ -z $SERVICE_TEMPLATE ]]; then
+  SERVICE_TEMPLATE="${SERVICE}@.service.template"
+fi
+
+if [[ ! -e $SERVICE_TEMPLATE ]]; then
+  echo "Please provide a service template"
+  exit 1
+fi
+
+if [[ -z $DOCKER_REPO && -n $1 ]]; then
+  DOCKER_REPO=$1
+fi
+
+if [[ -z $DOCKER_REPO ]]; then
+  DOCKER_REPO="quay.io/democracyworks/${SERVICE}"
+fi
+
+echo '--- building docker image'
+if [[ -n $DATOMIC_USERNAME && -n $DATOMIC_PASSWORD ]]; then
+  cat profiles.clj.sample | perl -pe 's/USERNAME/$ENV{"DATOMIC_USERNAME"}/' | \
+    perl -pe 's/PASSWORD/$ENV{"DATOMIC_PASSWORD"}/' > profiles.clj
+fi
+
+if [[ -z $BUILDKITE_BRANCH ]]; then
+  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+else
+  BRANCH=$BUILDKITE_BRANCH
+fi
+
+if [[ -z $BUILDKITE_COMMIT ]]; then
+  COMMIT=HEAD
+else
+  COMMIT=$BUILDKITE_COMMIT
+fi
+
+IMAGE_TAG=${BRANCH}-$(git rev-parse --short ${COMMIT})
+
+echo "Building ${DOCKER_REPO}:${IMAGE_TAG}"
+docker build -t $DOCKER_REPO:$IMAGE_TAG .
+
+if [[ $CI = "true" && $BUILDKITE_PULL_REQUEST = "false" ]]; then
+  echo '--- pushing docker image to registry'
+  docker push $DOCKER_REPO:$IMAGE_TAG
+else
+  echo "If you'd like to push this to the Docker repo, run: docker push ${DOCKER_REPO}:${IMAGE_TAG}"
+fi
+
+echo '--- updating fleet service template'
+cp $SERVICE_TEMPLATE ${SERVICE}@.service
+
+perl -p -i -e "s|^Environment=DOCKER_REPO=.*$|Environment=DOCKER_REPO=${DOCKER_REPO}|" ${SERVICE}@.service
+perl -p -i -e "s/^Environment=VERSION=.*$/Environment=VERSION=${IMAGE_TAG}/" ${SERVICE}@.service
+perl -p -i -e "s/^Environment=CONTAINER=.*$/Environment=CONTAINER=${SERVICE}/" ${SERVICE}@.service
+
+if hash buildkite-agent 2>/dev/null ; then
+  echo '--- saving service file'
+  buildkite-agent artifact upload ${SERVICE}@.service
+fi
