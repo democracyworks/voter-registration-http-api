@@ -63,13 +63,14 @@
         (go
           (let [result (alt! (timeout response-timeout) {:status :error
                                                          :error {:type :timeout}}
-                             result-chan ([v] v))]
+                             result-chan ([v] v))
+                result-without-status (dissoc result :status)]
             (if (= :ok (:status result))
               (assoc ctx :response
-                     (ring-resp/response (dissoc result :status)))
+                     (ring-resp/response result-without-status))
               (let [http-status (rabbit-result->http-status result)]
                 (assoc ctx :response
-                       (-> result
+                       (-> result-without-status
                            ring-resp/response
                            (ring-resp/status http-status)))))))))}))
 
