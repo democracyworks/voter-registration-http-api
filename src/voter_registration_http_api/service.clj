@@ -11,6 +11,8 @@
             [clojure.core.async :refer [chan go alt! timeout]]
             [voter-registration-http-api.voter-registration-works :as vrw]))
 
+(def response-timeout 5000)
+
 (def ping
   (interceptor
    {:enter
@@ -31,8 +33,6 @@
   (case (:status rabbit-result)
     :error (rabbit-error->http-status (:error rabbit-result))
     500))
-
-(def response-timeout 5000)
 
 (def registration-methods-read
   (interceptor
