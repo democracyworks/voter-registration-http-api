@@ -29,6 +29,9 @@
     500))
 
 (defn rabbit-result->http-status
+  "Converts result messages from RabbitMQ into HTTP status codes.
+  This currently only works with error responses, which isn't ideal, but making
+  it work with :ok responses will require more work outside of this fn. TODO"
   [rabbit-result]
   (case (:status rabbit-result)
     :error (rabbit-error->http-status (:error rabbit-result))
