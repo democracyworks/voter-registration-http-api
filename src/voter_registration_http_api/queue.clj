@@ -6,7 +6,8 @@
             [kehaar.rabbitmq]
             [voter-registration-http-api.channels :as channels]
             [voter-registration-http-api.handlers :as handlers]
-            [turbovote.resource-config :refer [config]]))
+            [turbovote.resource-config :refer [config]]
+            [voter-registration-http-api.service :refer [response-timeout]]))
 
 (defn initialize []
   (let [max-retries 5
@@ -19,7 +20,20 @@
                               (config [:rabbitmq :queues "voter-registration-http-api.ok"])
                               channels/ok-requests
                               channels/ok-responses)]
-          external-services []
+          external-services [(wire-up/external-service
+                              connection
+                              ""
+                              "voter-registration-works.registration-methods.read"
+                              (config [:rabbitmq :queues "voter-registration-works.registration-methods.read"])
+                              response-timeout
+                              channels/registration-methods-read)
+                             (wire-up/external-service
+                              connection
+                              ""
+                              "voter-registration-works.voter.register"
+                              (config [:rabbitmq :queues "voter-registration-works.voter.register"])
+                              response-timeout
+                              channels/voter-register)]
           outgoing-events []]
 
       (wire-up/start-responder! channels/ok-requests

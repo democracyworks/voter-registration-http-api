@@ -7,7 +7,7 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [turbovote.resource-config "0.2.0"]
                  [com.novemberain/langohr "3.3.0"]
-                 [prismatic/schema "0.4.3"]
+                 [prismatic/schema "0.4.4"]
                  [ch.qos.logback/logback-classic "1.1.3"]
 
                  ;; core.async has to come before pedestal or kehaar.wire-up will
@@ -18,7 +18,7 @@
                  
                  [io.pedestal/pedestal.service "0.4.0"]
                  [io.pedestal/pedestal.service-tools "0.4.0"]
-                 [democracyworks/pedestal-toolbox "0.6.1"]
+                 [democracyworks/pedestal-toolbox "0.6.2"]
 
                  ;; this has to go before pedestal.immutant
                  ;; until this is fixed:

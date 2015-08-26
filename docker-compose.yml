@@ -5,10 +5,19 @@ app:
     - wildfly
   environment:
     ALLOWED_ORIGINS: :all
+voterregistrationworks:
+  build: ../voter-registration-works
+  links:
+    - rabbitmq
+    - wildfly
+    - datomic
+  environment:
+    VOTER_REGISTRATION_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/voter-registration-works
 wildfly:
   image: quay.io/democracyworks/wildfly:8.2.0.Final
   links:
     - rabbitmq
+    - datomic
   ports:
     - "59990:9990"
     - "58080:8080"
@@ -21,3 +30,10 @@ rabbitmq:
     - "45672:5672"
     - "55672:15672"
   hostname: rabbitmq
+datomic:
+  image: quay.io/democracyworks/datomic-tx:0.9.5153
+  hostname: datomic
+  ports:
+    - "4334:4334"
+    - "4335:4335"
+    - "4336:4336"
