@@ -238,3 +238,116 @@
                                          (async/timeout 1000) ::timeout)]
           (assert (not= http-response ::timeout))
           (is (= 504 (:status http-response))))))))
+
+(deftest registration-statuses-read-test
+  (testing "GET /status/:user-id puts appropriate message on registration-statuses-reads channel"
+    (let [user-id (java.util.UUID/randomUUID)
+          http-response-ch (async/thread
+                             (http/get (str/join "/" [root-url
+                                                      "status"
+                                                      user-id])
+                                       {:headers {:accept "application/edn"}}))
+          [response-ch message] (async/alt!! channels/registration-statuses-read ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])
+          response {:status :ok
+                    :registration-statuses [{:user-id user-id
+                                             :status :foo
+                                             :source :bar}
+                                            {:user-id user-id
+                                             :status :baz
+                                             :source :qux}]}]
+      (assert (not= message ::timeout))
+      (async/>!! response-ch response)
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1000) ::timeout)
+            body-data (-> http-response :body edn/read-string)]
+        (assert (not= http-response ::timeout))
+        (is (= user-id (:user-id message)))
+        (is (= 200 (:status http-response)))
+        (is (= body-data (:registration-statuses response))))))
+  (testing "GET /status/:user-id/:source puts appropriate message on registration-statuses-reads channel"
+    (let [user-id (java.util.UUID/randomUUID)
+          source "user"
+          http-response-ch (async/thread
+                             (http/get (str/join "/" [root-url
+                                                      "status"
+                                                      user-id
+                                                      source])
+                                       {:headers {:accept "application/edn"}}))
+          [response-ch message] (async/alt!! channels/registration-statuses-read ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])
+          response {:status :ok
+                    :registration-status {:user-id user-id
+                                          :status :foo
+                                          :source (keyword source)}}]
+      (assert (not= message ::timeout))
+      (async/>!! response-ch response)
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1000) ::timeout)
+            body-data (-> http-response :body edn/read-string)]
+        (assert (not= http-response ::timeout))
+        (is (= user-id (:user-id message)))
+        (is (= (keyword source) (:source message)))
+        (is (= 200 (:status http-response)))
+        (is (= body-data (:registration-status response)))))))
+
+(deftest registration-status-create-test
+  (testing "PUT /status/:user-id/:source w/ valid body puts appropriate message on registration-status-create channel"
+    (let [user-id (java.util.UUID/randomUUID)
+          source "turbovote"
+          status :pending
+          put-data {:status status}
+          http-response-ch (async/thread
+                             (http/put (str/join "/" [root-url
+                                                      "status"
+                                                      user-id
+                                                      source])
+                                       {:headers {:content-type "application/edn"
+                                                  :accept "application/edn"}
+                                        :body (pr-str put-data)}))
+          [response-ch message] (async/alt!! channels/registration-status-create ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])
+          response {:status :ok
+                    :registration-status {:user-id user-id
+                                          :source (keyword source)
+                                          :status status}}]
+      (assert (not= message ::timeout))
+      (async/>!! response-ch response)
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1000) ::timeout)
+            body-data (-> http-response :body edn/read-string)]
+        (assert (not= http-response ::timeout))
+        (is (= {:user-id user-id
+                :source (keyword source)
+                :status status}
+               message))
+        (is (= 201 (:status http-response)))
+        (is (= body-data (:registration-status response)))))))
+
+(deftest registration-status-delete-test
+  (testing "DELETE /status/:user-id/:source puts appropriate message on registration-status-delete channel"
+    (let [user-id (java.util.UUID/randomUUID)
+          source "turbovote"
+          http-response-ch (async/thread
+                             (http/delete (str/join "/" [root-url
+                                                         "status"
+                                                         user-id
+                                                         source])
+                                          {:headers {:accept "application/edn"}}))
+          [response-ch message] (async/alt!! channels/registration-status-delete ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])
+          response {:status :ok
+                    :registration-status {:user-id user-id
+                                          :source (keyword source)
+                                          :status :foo}}]
+      (assert (not= message ::timeout))
+      (async/>!! response-ch response)
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1000) ::timeout)
+            body-data (-> http-response :body edn/read-string)]
+        (assert (not= http-response ::timeout))
+        (is (= {:user-id user-id
+                :source (keyword source)}
+               message))
+        (is (= 200 (:status http-response)))
+        (is (= body-data (:registration-status response)))))))
