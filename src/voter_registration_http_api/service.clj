@@ -77,6 +77,81 @@
                            ring-resp/response
                            (ring-resp/status http-status)))))))))}))
 
+(def registration-statuses-read
+  (interceptor
+   {:enter
+    (fn [ctx]
+      (let [user-id (java.util.UUID/fromString
+                     (get-in ctx [:request :path-params :user-id]))
+            source (get-in ctx [:request :path-params :source])
+            result-chan (vrw/registration-statuses-read
+                         (merge {:user-id user-id}
+                                (when source {:source (keyword source)})))]
+        (go
+          (let [result (alt! (timeout response-timeout) {:status :error
+                                                         :error {:type :timeout}}
+                             result-chan ([v] v))]
+            (if (= :ok (:status result))
+              (let [statuses (or (:registration-statuses result)
+                                 (:registration-status result))]
+                (assoc ctx :response
+                       (ring-resp/response statuses)))
+              (let [http-status (rabbit-result->http-status result)]
+                (assoc ctx :response
+                       (-> result
+                           ring-resp/response
+                           (ring-resp/status http-status)))))))))}))
+
+(def registration-status-create
+  (interceptor
+   {:enter
+    (fn [ctx]
+      (let [user-id (java.util.UUID/fromString
+                     (get-in ctx [:request :path-params :user-id]))
+            source (keyword (get-in ctx [:request :path-params :source]))
+            status (get-in ctx [:request :body-params])
+            result-chan (vrw/registration-status-create
+                         (merge status {:user-id user-id
+                                        :source source}))]
+        (go
+          (let [result (alt! (timeout response-timeout) {:status :error
+                                                         :error {:type :timeout}}
+                             result-chan ([v] v))]
+            (if (= :ok (:status result))
+              (let [created-status (:registration-status result)]
+                (assoc ctx :response
+                       (-> created-status
+                           ring-resp/response
+                           (ring-resp/status 201))))
+              (let [http-status (rabbit-result->http-status result)]
+                (assoc ctx :response
+                       (-> result
+                           ring-resp/response
+                           (ring-resp/status http-status)))))))))}))
+
+(def registration-status-delete
+  (interceptor
+   {:enter
+    (fn [ctx]
+      (let [user-id (java.util.UUID/fromString
+                     (get-in ctx [:request :path-params :user-id]))
+            source (keyword (get-in ctx [:request :path-params :source]))
+            result-chan (vrw/registration-status-delete {:user-id user-id
+                                                         :source source})]
+        (go
+          (let [result (alt! (timeout response-timeout) {:status :error
+                                                         :error {:type :timeout}}
+                             result-chan ([v] v))]
+            (if (= :ok (:status result))
+              (let [deleted-status (:registration-status result)]
+                (assoc ctx :response
+                       (ring-resp/response deleted-status)))
+              (let [http-status (rabbit-result->http-status result)]
+                (assoc ctx :response
+                       (-> result
+                           ring-resp/response
+                           (ring-resp/status http-status)))))))))}))
+
 (defroutes routes
   [[["/"
      ^:interceptors [(body-params)
@@ -87,7 +162,11 @@
                                                        "text/plain"])]
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state" {:get [:get-registration-methods registration-methods-read]}]
-     ["/registrations" {:post [:post-registration voter-register]}]]]])
+     ["/registrations" {:post [:post-registration voter-register]}]
+     ["/status/:user-id" {:get [:get-registration-statuses registration-statuses-read]}
+      ["/:source" {:get [:get-registration-status registration-statuses-read]
+                   :put [:put-registration-status registration-status-create]
+                   :delete [:delete-registration-status registration-status-delete]}]]]]])
 
 (defn service []
   {::env :prod
