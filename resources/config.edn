@@ -5,4 +5,7 @@
                          :port #resource-config/edn #resource-config/env "RABBITMQ_PORT_5672_TCP_PORT"}
             :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.registration-methods.read" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.voter.register" {:exclusive false :durable true :auto-delete false}}}}
+                     "voter-registration-works.voter.register" {:exclusive false :durable true :auto-delete false}
+                     "voter-registration-works.registration-status.read" {:exclusive false :durable true :auto-delete false}
+                     "voter-registration-works.registration-status.create" {:exclusive false :durable true :auto-delete false}
+                     "voter-registration-works.registration-status.delete" {:exclusive false :durable true :auto-delete false}}}}

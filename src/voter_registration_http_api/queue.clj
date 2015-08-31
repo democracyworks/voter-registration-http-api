@@ -33,13 +33,34 @@
                               "voter-registration-works.voter.register"
                               (config [:rabbitmq :queues "voter-registration-works.voter.register"])
                               response-timeout
-                              channels/voter-register)]
+                              channels/voter-register)
+                             (wire-up/external-service
+                              connection
+                              ""
+                              "voter-registration-works.registration-status.read"
+                              (config [:rabbitmq :queues "voter-registration-works.registration-status.read"])
+                              response-timeout
+                              channels/registration-status-read)
+                             (wire-up/external-service
+                              connection
+                              ""
+                              "voter-registration-works.registration-status.create"
+                              (config [:rabbitmq :queues "voter-registration-works.registration-status.create"])
+                              response-timeout
+                              channels/registration-status-create)
+                             (wire-up/external-service
+                              connection
+                              ""
+                              "voter-registration-works.registration-status.delete"
+                              (config [:rabbitmq :queues "voter-registration-works.registration-status.delete"])
+                              response-timeout
+                              channels/registration-status-delete)]
           outgoing-events []]
 
       (wire-up/start-responder! channels/ok-requests
                                 channels/ok-responses
                                 handlers/ok)
-      
+
       {:connections [connection]
        :channels (vec (concat
                        incoming-events
