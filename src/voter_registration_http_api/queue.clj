@@ -37,10 +37,10 @@
                              (wire-up/external-service
                               connection
                               ""
-                              "voter-registration-works.registration-statuses.read"
-                              (config [:rabbitmq :queues "voter-registration-works.registration-statuses.read"])
+                              "voter-registration-works.registration-status.read"
+                              (config [:rabbitmq :queues "voter-registration-works.registration-status.read"])
                               response-timeout
-                              channels/registration-statuses-read)
+                              channels/registration-status-read)
                              (wire-up/external-service
                               connection
                               ""

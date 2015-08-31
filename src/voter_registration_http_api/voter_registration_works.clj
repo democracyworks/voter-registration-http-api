@@ -6,6 +6,6 @@
 
 (def voter-register (wire-up/async->fn channels/voter-register))
 
-(def registration-statuses-read (wire-up/async->fn channels/registration-statuses-read))
+(def registration-statuses-read (wire-up/async->fn channels/registration-status-read))
 (def registration-status-create (wire-up/async->fn channels/registration-status-create))
 (def registration-status-delete (wire-up/async->fn channels/registration-status-delete))

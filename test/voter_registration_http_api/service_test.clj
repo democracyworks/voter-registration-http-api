@@ -239,15 +239,15 @@
           (assert (not= http-response ::timeout))
           (is (= 504 (:status http-response))))))))
 
-(deftest registration-statuses-read-test
-  (testing "GET /status/:user-id puts appropriate message on registration-statuses-reads channel"
+(deftest registration-status-read-test
+  (testing "GET /status/:user-id puts appropriate message on registration-status-read channel"
     (let [user-id (java.util.UUID/randomUUID)
           http-response-ch (async/thread
                              (http/get (str/join "/" [root-url
                                                       "status"
                                                       user-id])
                                        {:headers {:accept "application/edn"}}))
-          [response-ch message] (async/alt!! channels/registration-statuses-read ([v] v)
+          [response-ch message] (async/alt!! channels/registration-status-read ([v] v)
                                              (async/timeout 1000) [nil ::timeout])
           response {:status :ok
                     :registration-statuses [{:user-id user-id
@@ -265,7 +265,7 @@
         (is (= user-id (:user-id message)))
         (is (= 200 (:status http-response)))
         (is (= body-data (:registration-statuses response))))))
-  (testing "GET /status/:user-id/:source puts appropriate message on registration-statuses-reads channel"
+  (testing "GET /status/:user-id/:source puts appropriate message on registration-status-read channel"
     (let [user-id (java.util.UUID/randomUUID)
           source "user"
           http-response-ch (async/thread
@@ -274,7 +274,7 @@
                                                       user-id
                                                       source])
                                        {:headers {:accept "application/edn"}}))
-          [response-ch message] (async/alt!! channels/registration-statuses-read ([v] v)
+          [response-ch message] (async/alt!! channels/registration-status-read ([v] v)
                                              (async/timeout 1000) [nil ::timeout])
           response {:status :ok
                     :registration-status {:user-id user-id

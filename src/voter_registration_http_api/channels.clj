@@ -9,12 +9,12 @@
 
 (defonce voter-register (async/chan))
 
-(defonce registration-statuses-read (async/chan))
+(defonce registration-status-read (async/chan))
 (defonce registration-status-create (async/chan))
 (defonce registration-status-delete (async/chan))
 
 (defn close-all! []
   (doseq [c [ok-requests ok-responses registration-methods-read
-             voter-register registration-statuses-read
+             voter-register registration-status-read
              registration-status-create registration-status-delete]]
     (async/close! c)))
