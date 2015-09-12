@@ -7,7 +7,8 @@
             [clojure.test :refer :all]
             [clojure.string :as str]
             [voter-registration-http-api.channels :as channels]
-            [voter-registration-http-api.service :as service])
+            [voter-registration-http-api.service :as service]
+            [bifrost.core :as bifrost])
   (:import [java.io ByteArrayInputStream ByteArrayOutputStream]))
 
 (def test-server-port 56789)
@@ -92,7 +93,7 @@
         (assert (not= http-response ::timeout))
         (is (= 500 (:status http-response))))))
   (testing "no response from backend service results in HTTP gateway timeout error response"
-    (with-redefs [service/response-timeout 500]
+    (with-redefs [bifrost/*response-timeout* 500]
       (let [http-response-ch (async/thread
                                (http/get (str/join "/" [root-url
                                                         "registration-methods"
@@ -211,7 +212,7 @@
         (assert (not= http-response ::timeout))
         (is (= 500 (:status http-response))))))
   (testing "no response from backend service results in HTTP gateway timeout error response"
-    (with-redefs [service/response-timeout 500]
+    (with-redefs [bifrost/*response-timeout* 500]
       (let [post-data {:state :co
                        :method :online
                        :voter {:email "rockiesgm@example.com"
@@ -307,7 +308,7 @@
                                         :body (pr-str put-data)}))
           [response-ch message] (async/alt!! channels/registration-status-create ([v] v)
                                              (async/timeout 1000) [nil ::timeout])
-          response {:status :ok
+          response {:status :created
                     :registration-status {:user-id user-id
                                           :source (keyword source)
                                           :status status}}]

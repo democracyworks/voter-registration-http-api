@@ -25,7 +25,8 @@
                  ;; https://github.com/pedestal/pedestal/issues/33
                  [org.immutant/web "2.1.0"]
                  [io.pedestal/pedestal.immutant "0.4.0"]
-                 [org.immutant/core "2.1.0"]]
+                 [org.immutant/core "2.1.0"]
+                 [democracyworks/bifrost "0.1.4"]]
   :plugins [[lein-immutant "2.0.0"]]
   :main ^:skip-aot voter-registration-http-api.server
   :target-path "target/%s"
