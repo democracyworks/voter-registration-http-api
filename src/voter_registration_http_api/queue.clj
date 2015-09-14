@@ -24,35 +24,35 @@
                               ""
                               "voter-registration-works.registration-methods.read"
                               (config [:rabbitmq :queues "voter-registration-works.registration-methods.read"])
-                              5000
+                              (config [:rabbitmq :response-timeout])
                               channels/registration-methods-read)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.voter.register"
                               (config [:rabbitmq :queues "voter-registration-works.voter.register"])
-                              5000
+                              (config [:rabbitmq :response-timeout])
                               channels/voter-register)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.registration-status.read"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.read"])
-                              5000
+                              (config [:rabbitmq :response-timeout])
                               channels/registration-status-read)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.registration-status.create"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.create"])
-                              5000
+                              (config [:rabbitmq :response-timeout])
                               channels/registration-status-create)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.registration-status.delete"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.delete"])
-                              5000
+                              (config [:rabbitmq :response-timeout])
                               channels/registration-status-delete)]
           outgoing-events []]
 
