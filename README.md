@@ -20,7 +20,10 @@ TODO: Add voter-registration-http-api specific configuration.
 
 ## Usage
 
-TODO: Add usage
+Here's a sample CURL for creating a registration:
+`curl -X POST "http://localdocker:58080/voter-registration-http-api/registrations" -H "Content-Type: application/edn" -H "Accept: application/edn" -d '{:state :ok :method :by-mail :voter {:user-id #uuid "18570c34-e221-42d4-a0bf-4349dfa1aaad" :email "rockiesgm@example.com" :first-name "Walt" :last-name "Weiss" :party "Green Party" :race "Alien" :phone "(303) 8675-3099" :citizenship "US" :date-of-birth #inst "1963-11-28" :register-address :physical :addresses {:physical {:street "8145 NE 139th St" :city "Edmond" :state "OK" :postal-code "73013"}}}}'`
+
+TODO: Add more usage
 
 ## Running
 
