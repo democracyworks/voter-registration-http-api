@@ -1,10 +1,8 @@
 # voter-registration-http-api
 
-TODO: Add description
+HTTP API gateway for voter registration services.
 
 ## Configuration
-
-TODO: Add voter-registration-http-api specific configuration.
 
 * ALLOWED_ORIGINS
     * This env var controls the cross-origin resource sharing (CORS) settings.
