@@ -14,7 +14,7 @@ voterregistrationworks:
   environment:
     VOTER_REGISTRATION_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/voter-registration-works
 wildfly:
-  image: quay.io/democracyworks/wildfly:8.2.0.Final
+  image: quay.io/democracyworks/wildfly:9.0.2.Final-debug
   links:
     - rabbitmq
     - datomic
@@ -31,7 +31,7 @@ rabbitmq:
     - "55672:15672"
   hostname: rabbitmq
 datomic:
-  image: quay.io/democracyworks/datomic-tx:0.9.5153
+  image: quay.io/democracyworks/datomic-tx:0.9.5327
   hostname: datomic
   ports:
     - "4334:4334"
