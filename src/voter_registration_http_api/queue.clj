@@ -31,7 +31,7 @@
                               ""
                               "voter-registration-works.voter.register"
                               (config [:rabbitmq :queues "voter-registration-works.voter.register"])
-                              (config [:rabbitmq :response-timeout])
+                              (config [:rabbitmq :voter-register-timeout])
                               channels/voter-register)
                              (wire-up/external-service
                               connection
