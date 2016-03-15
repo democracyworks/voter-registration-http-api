@@ -24,7 +24,7 @@
                               ""
                               "voter-registration-works.registration-methods.read"
                               (config [:rabbitmq :queues "voter-registration-works.registration-methods.read"])
-                              (config [:rabbitmq :response-timeout])
+                              (config [:rabbitmq :default-timeout])
                               channels/registration-methods-read)
                              (wire-up/external-service
                               connection
@@ -38,21 +38,21 @@
                               ""
                               "voter-registration-works.registration-status.read"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.read"])
-                              (config [:rabbitmq :response-timeout])
+                              (config [:rabbitmq :default-timeout])
                               channels/registration-status-read)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.registration-status.create"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.create"])
-                              (config [:rabbitmq :response-timeout])
+                              (config [:rabbitmq :default-timeout])
                               channels/registration-status-create)
                              (wire-up/external-service
                               connection
                               ""
                               "voter-registration-works.registration-status.delete"
                               (config [:rabbitmq :queues "voter-registration-works.registration-status.delete"])
-                              (config [:rabbitmq :response-timeout])
+                              (config [:rabbitmq :default-timeout])
                               channels/registration-status-delete)]
           outgoing-events []]
 

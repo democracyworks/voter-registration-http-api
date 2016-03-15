@@ -1,10 +1,10 @@
 {:server {:hostname "0.0.0.0"
           :port 8080
-          :allowed-origins #resource-config/edn #resource-config/env "ALLOWED_ORIGINS"}
- :rabbitmq {:connection {:host #resource-config/env "RABBITMQ_PORT_5672_TCP_ADDR"
-                         :port #resource-config/edn #resource-config/env "RABBITMQ_PORT_5672_TCP_PORT"}
-            :default-timeout 10000
-            :voter-register-timeout 20000
+          :allowed-origins :all}
+ :rabbitmq {:connection {:host "0.0.0.0"
+                         :port 5672}
+            :default-timeout 1000
+            :voter-register-timeout 1000
             :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.registration-methods.read" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.voter.register" {:exclusive false :durable true :auto-delete false}

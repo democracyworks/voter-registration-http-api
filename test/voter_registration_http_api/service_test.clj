@@ -1,5 +1,6 @@
 (ns voter-registration-http-api.service-test
-  (:require [voter-registration-http-api.server :as server]
+  (:require [voter-registration-http-api.service :refer :all]
+            [voter-registration-http-api.server :as server]
             [clj-http.client :as http]
             [clojure.edn :as edn]
             [cognitect.transit :as transit]
@@ -93,20 +94,19 @@
         (assert (not= http-response ::timeout))
         (is (= 500 (:status http-response))))))
   (testing "no response from backend service results in HTTP gateway timeout error response"
-    (with-redefs [bifrost/*response-timeout* 500]
-      (let [http-response-ch (async/thread
-                               (http/get (str/join "/" [root-url
-                                                        "registration-methods"
-                                                        "ok"])
-                                         {:headers {:accept "application/edn"}
-                                          :throw-exceptions false}))
-            [response-ch message] (async/alt!! channels/registration-methods-read ([v] v)
-                                               (async/timeout 1000) [nil ::timeout])]
-        (assert (not= message ::timeout))
-        (let [http-response (async/alt!! http-response-ch ([v] v)
-                                         (async/timeout 1000) ::timeout)]
-          (assert (not= http-response ::timeout))
-          (is (= 504 (:status http-response))))))))
+    (let [http-response-ch (async/thread
+                             (http/get (str/join "/" [root-url
+                                                      "registration-methods"
+                                                      "ok"])
+                                       {:headers {:accept "application/edn"}
+                                        :throw-exceptions false}))
+          [response-ch message] (async/alt!! channels/registration-methods-read ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])]
+      (assert (not= message ::timeout))
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1500) ::timeout)]
+        (assert (not= http-response ::timeout))
+        (is (= 504 (:status http-response)))))))
 
 (deftest voter-register-test
   (testing "POST to /registrations puts appropriate voter.register message
@@ -212,33 +212,32 @@
         (assert (not= http-response ::timeout))
         (is (= 500 (:status http-response))))))
   (testing "no response from backend service results in HTTP gateway timeout error response"
-    (with-redefs [bifrost/*response-timeout* 500]
-      (let [post-data {:state :co
-                       :method :online
-                       :voter {:email "rockiesgm@example.com"
-                               :first-name "Walt"
-                               :last-name "Weiss"
-                               :citizenship "US"
-                               :date-of-birth #inst "1963-11-28"
-                               :register-address :physical
-                               :addresses {:physical {:street "8145 NE 139th St"
-                                                      :city "Edmond"
-                                                      :state "OK"
-                                                      :postal-code "73013"}}}}
-            http-response-ch (async/thread
-                               (http/post (str/join "/" [root-url
-                                                         "registrations"])
-                                          {:headers {:accept "application/edn"
-                                                     :content-type "application/edn"}
-                                           :body (pr-str post-data)
-                                           :throw-exceptions false}))
-            [response-ch message] (async/alt!! channels/voter-register ([v] v)
-                                               (async/timeout 1000) [nil ::timeout])]
-        (assert (not= message ::timeout))
-        (let [http-response (async/alt!! http-response-ch ([v] v)
-                                         (async/timeout 1000) ::timeout)]
-          (assert (not= http-response ::timeout))
-          (is (= 504 (:status http-response))))))))
+    (let [post-data {:state :co
+                     :method :online
+                     :voter {:email "rockiesgm@example.com"
+                             :first-name "Walt"
+                             :last-name "Weiss"
+                             :citizenship "US"
+                             :date-of-birth #inst "1963-11-28"
+                             :register-address :physical
+                             :addresses {:physical {:street "8145 NE 139th St"
+                                                    :city "Edmond"
+                                                    :state "OK"
+                                                    :postal-code "73013"}}}}
+          http-response-ch (async/thread
+                             (http/post (str/join "/" [root-url
+                                                       "registrations"])
+                                        {:headers {:accept "application/edn"
+                                                   :content-type "application/edn"}
+                                         :body (pr-str post-data)
+                                         :throw-exceptions false}))
+          [response-ch message] (async/alt!! channels/voter-register ([v] v)
+                                             (async/timeout 1000) [nil ::timeout])]
+      (assert (not= message ::timeout))
+      (let [http-response (async/alt!! http-response-ch ([v] v)
+                                       (async/timeout 1500) ::timeout)]
+        (assert (not= http-response ::timeout))
+        (is (= 504 (:status http-response)))))))
 
 (deftest registration-status-read-test
   (testing "GET /status/:user-id puts appropriate message on registration-status-read channel"
