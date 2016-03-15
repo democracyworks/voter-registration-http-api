@@ -3,7 +3,7 @@
           :allowed-origins #resource-config/edn #resource-config/env "ALLOWED_ORIGINS"}
  :rabbitmq {:connection {:host #resource-config/env "RABBITMQ_PORT_5672_TCP_ADDR"
                          :port #resource-config/edn #resource-config/env "RABBITMQ_PORT_5672_TCP_PORT"}
-            :default-timeout 10000
+            :upstream-timeout 10000
             :voter-register-timeout 20000
             :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.registration-methods.read" {:exclusive false :durable true :auto-delete false}

@@ -30,7 +30,7 @@
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
                                         channels/registration-methods-read
-                                        (config [:rabbitmq :default-timeout]))]}
+                                        (config [:rabbitmq :upstream-timeout]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
                                                     [:body] identity)]]
      ["/registrations"
@@ -40,7 +40,7 @@
      ["/status/:user-id"
       {:get [:get-registration-statuses (bifrost/interceptor
                                          channels/registration-status-read
-                                         (config [:rabbitmq :default-timeout]))]}
+                                         (config [:rabbitmq :upstream-timeout]))]}
       ^:interceptors [(bifrost.i/update-in-request [:path-params :user-id]
                                                    #(java.util.UUID/fromString %))
                       (bifrost.i/update-in-response [:body :registration-statuses]
@@ -48,13 +48,13 @@
       ["/:source"
        {:get [:get-registration-status (bifrost/interceptor
                                         channels/registration-status-read
-                                        (config [:rabbitmq :default-timeout]))]
+                                        (config [:rabbitmq :upstream-timeout]))]
         :put [:put-registration-status (bifrost/interceptor
                                         channels/registration-status-create
-                                        (config [:rabbitmq :default-timeout]))]
+                                        (config [:rabbitmq :upstream-timeout]))]
         :delete [:delete-registration-status (bifrost/interceptor
                                               channels/registration-status-delete
-                                              (config [:rabbitmq :default-timeout]))]}
+                                              (config [:rabbitmq :upstream-timeout]))]}
        ^:interceptors [(bifrost.i/update-in-request [:path-params :source]
                                                     keyword)
                        (bifrost.i/update-in-response [:body :registration-status]
