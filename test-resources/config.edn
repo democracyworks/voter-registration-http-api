@@ -3,9 +3,9 @@
           :allowed-origins :all}
  :timeouts {:registration-methods-read 100
             :voter-register 100
-            :status-read 1000
-            :status-create 1000
-            :status-delete 1000}
+            :status-read 100
+            :status-create 100
+            :status-delete 100}
  :rabbitmq {:connection {:host "0.0.0.0"
                          :port 5672}
             :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
