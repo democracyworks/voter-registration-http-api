@@ -1,10 +1,13 @@
 {:server {:hostname "0.0.0.0"
           :port 8080
           :allowed-origins :all}
+ :timeouts {:registration-methods-read 100
+            :voter-register 100
+            :status-read 1000
+            :status-create 1000
+            :status-delete 1000}
  :rabbitmq {:connection {:host "0.0.0.0"
                          :port 5672}
-            :upstream-timeout 1000
-            :voter-register-timeout 1000
             :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.registration-methods.read" {:exclusive false :durable true :auto-delete false}
                      "voter-registration-works.voter.register" {:exclusive false :durable true :auto-delete false}
