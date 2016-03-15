@@ -29,26 +29,32 @@
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
-                                        channels/registration-methods-read)]}
+                                        channels/registration-methods-read
+                                        (config [:timeouts :registration-methods-read]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
                                                     [:body] identity)]]
      ["/registrations"
       {:post [:post-registration (bifrost/interceptor
-                                  channels/voter-register)]}]
+                                  channels/voter-register
+                                  (config [:timeouts :voter-register]))]}]
      ["/status/:user-id"
       {:get [:get-registration-statuses (bifrost/interceptor
-                                         channels/registration-status-read)]}
+                                         channels/registration-status-read
+                                         (config [:timeouts :status-read]))]}
       ^:interceptors [(bifrost.i/update-in-request [:path-params :user-id]
                                                    #(java.util.UUID/fromString %))
                       (bifrost.i/update-in-response [:body :registration-statuses]
                                                     [:body] identity)]
       ["/:source"
        {:get [:get-registration-status (bifrost/interceptor
-                                        channels/registration-status-read)]
+                                        channels/registration-status-read
+                                        (config [:timeouts :status-read]))]
         :put [:put-registration-status (bifrost/interceptor
-                                        channels/registration-status-create)]
+                                        channels/registration-status-create
+                                        (config [:timeouts :status-create]))]
         :delete [:delete-registration-status (bifrost/interceptor
-                                              channels/registration-status-delete)]}
+                                              channels/registration-status-delete
+                                              (config [:timeouts :status-delete]))]}
        ^:interceptors [(bifrost.i/update-in-request [:path-params :source]
                                                     keyword)
                        (bifrost.i/update-in-response [:body :registration-status]
