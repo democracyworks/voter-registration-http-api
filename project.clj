@@ -18,7 +18,7 @@
 
                  [io.pedestal/pedestal.service "0.4.0"]
                  [io.pedestal/pedestal.service-tools "0.4.0"]
-                 [democracyworks/pedestal-toolbox "0.6.2"]
+                 [democracyworks/pedestal-toolbox "0.7.0"]
 
                  ;; this has to go before pedestal.immutant
                  ;; until this is fixed:
@@ -26,7 +26,7 @@
                  [org.immutant/web "2.1.0"]
                  [io.pedestal/pedestal.immutant "0.4.0"]
                  [org.immutant/core "2.1.0"]
-                 [democracyworks/bifrost "0.1.4"]]
+                 [democracyworks/bifrost "0.1.5"]]
   :plugins [[lein-immutant "2.0.0"]]
   :main ^:skip-aot voter-registration-http-api.server
   :target-path "target/%s"
@@ -34,4 +34,5 @@
   :profiles {:uberjar {:aot :all}
              :dev {:resource-paths ["dev-resources"]}
              :test {:dependencies [[clj-http "2.0.0"]]
+                    :resource-paths ["test-resources"]
                     :jvm-opts ["-Dlog-level=INFO"]}})

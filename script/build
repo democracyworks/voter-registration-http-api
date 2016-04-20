@@ -43,12 +43,14 @@ fi
 
 IMAGE_TAG=${BRANCH}-$(git rev-parse --short ${COMMIT})
 
-echo "Building ${DOCKER_REPO}:${IMAGE_TAG}"
-docker build -t $DOCKER_REPO:$IMAGE_TAG .
+IMAGE_NAME="${DOCKER_REPO}:${IMAGE_TAG}"
+
+echo "Building ${IMAGE_NAME}"
+docker build -t ${IMAGE_NAME} .
 
 if [[ $CI = "true" && $BUILDKITE_PULL_REQUEST = "false" ]]; then
   echo '--- pushing docker image to registry'
-  docker push $DOCKER_REPO:$IMAGE_TAG
+  docker push ${IMAGE_NAME}
 else
   echo "If you'd like to push this to the Docker repo, run: docker push ${DOCKER_REPO}:${IMAGE_TAG}"
 fi

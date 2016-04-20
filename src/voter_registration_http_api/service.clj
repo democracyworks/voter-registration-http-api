@@ -5,6 +5,7 @@
             [io.pedestal.interceptor :refer [interceptor]]
             [ring.util.response :as ring-resp]
             [turbovote.resource-config :refer [config]]
+            [pedestal-toolbox.cors :as cors]
             [pedestal-toolbox.params :refer :all]
             [pedestal-toolbox.content-negotiation :refer :all]
             [bifrost.core :as bifrost]
@@ -28,27 +29,33 @@
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
-                                        channels/registration-methods-read)]}
+                                        channels/registration-methods-read
+                                        (config [:timeouts :registration-methods-read]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
                                                     [:body] identity)
                       (bifrost.i/update-in-request [:query-params :language] keyword)]
      ["/registrations"
       {:post [:post-registration (bifrost/interceptor
-                                  channels/voter-register)]}]
+                                  channels/voter-register
+                                  (config [:timeouts :voter-register]))]}]
      ["/status/:user-id"
       {:get [:get-registration-statuses (bifrost/interceptor
-                                         channels/registration-status-read)]}
+                                         channels/registration-status-read
+                                         (config [:timeouts :status-read]))]}
       ^:interceptors [(bifrost.i/update-in-request [:path-params :user-id]
                                                    #(java.util.UUID/fromString %))
                       (bifrost.i/update-in-response [:body :registration-statuses]
                                                     [:body] identity)]
       ["/:source"
        {:get [:get-registration-status (bifrost/interceptor
-                                        channels/registration-status-read)]
+                                        channels/registration-status-read
+                                        (config [:timeouts :status-read]))]
         :put [:put-registration-status (bifrost/interceptor
-                                        channels/registration-status-create)]
+                                        channels/registration-status-create
+                                        (config [:timeouts :status-create]))]
         :delete [:delete-registration-status (bifrost/interceptor
-                                              channels/registration-status-delete)]}
+                                              channels/registration-status-delete
+                                              (config [:timeouts :status-delete]))]}
        ^:interceptors [(bifrost.i/update-in-request [:path-params :source]
                                                     keyword)
                        (bifrost.i/update-in-response [:body :registration-status]
@@ -60,9 +67,9 @@
    ::bootstrap/router :linear-search
    ::bootstrap/routes routes
    ::bootstrap/resource-path "/public"
-   ::bootstrap/allowed-origins (if (= :all (config [:server :allowed-origins]))
-                                 (constantly true)
-                                 (config [:server :allowed-origins]))
+   ::bootstrap/allowed-origins (cors/domain-matcher-fn
+                                (map re-pattern
+                                     (config [:server :allowed-origins])))
    ::bootstrap/host (config [:server :hostname])
    ::bootstrap/type :immutant
    ::bootstrap/port (config [:server :port])})
