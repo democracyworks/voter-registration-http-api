@@ -33,7 +33,7 @@
                                         (config [:timeouts :registration-methods-read]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
                                                     [:body] identity)
-                      (bifrost.i/update-in-request [:query-params :language] keyword)]
+                      (bifrost.i/update-in-request [:query-params :language] keyword)]]
      ["/registrations"
       {:post [:post-registration (bifrost/interceptor
                                   channels/voter-register
