@@ -144,7 +144,7 @@
         (is (= 200 (:status http-response)))
         (is (= (dissoc response :status) body-data))
         (is (= :all (:language message))))))
-  (testing "GET to /registration-methods/:state can receive & respond with Transit"
+  (testing "POST to /registrations can receive & respond with Transit"
     (let [post-data {:state :ny
                      :method :paper
                      :voter {:email "rockiesgm@example.com"
