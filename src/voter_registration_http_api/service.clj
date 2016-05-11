@@ -31,19 +31,17 @@
                                                        "application/transit+json"
                                                        "application/transit+msgpack"
                                                        "application/json"
-                                                       "text/plain"])]
+                                                       "text/plain"])
+                     (bifrost.i/update-in-request [:query-params]
+                                                   language-coercer)]
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
                                         channels/registration-methods-read
                                         (config [:timeouts :registration-methods-read]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
-                                                    [:body] identity)
-                      (bifrost.i/update-in-request [:query-params]
-                                                   language-coercer)]]
+                                                    [:body] identity)]]
      ["/registrations"
-      ^:interceptors [(bifrost.i/update-in-request [:query-params]
-                                                   language-coercer)]
       {:post [:post-registration (bifrost/interceptor
                                   channels/voter-register
                                   (config [:timeouts :voter-register]))]}]
