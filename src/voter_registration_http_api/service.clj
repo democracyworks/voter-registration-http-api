@@ -18,6 +18,12 @@
     (fn [ctx]
       (assoc ctx :response (ring-resp/response "OK")))}))
 
+(defn language-coercer
+  [params]
+  (if-let [language (:language params)]
+    {:language (keyword language)}
+    {}))
+
 (defroutes routes
   [[["/"
      ^:interceptors [(body-params)
@@ -25,19 +31,16 @@
                                                        "application/transit+json"
                                                        "application/transit+msgpack"
                                                        "application/json"
-                                                       "text/plain"])]
+                                                       "text/plain"])
+                     (bifrost.i/update-in-request [:query-params]
+                                                   language-coercer)]
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
                                         channels/registration-methods-read
                                         (config [:timeouts :registration-methods-read]))]}
       ^:interceptors [(bifrost.i/update-in-response [:body :registration-methods]
-                                                    [:body] identity)
-                      (bifrost.i/update-in-request [:query-params]
-                                                   (fn [params]
-                                                     (if-let [language (:language params)]
-                                                       {:language (keyword language)}
-                                                       {})))]]
+                                                    [:body] identity)]]
      ["/registrations"
       {:post [:post-registration (bifrost/interceptor
                                   channels/voter-register

@@ -35,7 +35,7 @@
     (let [http-response-ch (async/thread
                              (http/get (str/join "/" [root-url
                                                       "registration-methods"
-                                                      "co"])
+                                                      "co?language=all"])
                                        {:headers {:accept "application/edn"}}))
           [response-ch message] (async/alt!! channels/registration-methods-read ([v] v)
                                              (async/timeout 1000) [nil ::timeout])
@@ -51,7 +51,8 @@
         (assert (not= http-response ::timeout))
         (is (= "co" (:state message)))
         (is (= 200 (:status http-response)))
-        (is (= (:registration-methods response) body-data)))))
+        (is (= (:registration-methods response) body-data))
+        (is (= :all (:language message))))))
   (testing "GET to /registration-methods/:state can respond with Transit"
     (let [http-response-ch (async/thread
                              (http/get (str/join "/" [root-url
@@ -125,7 +126,7 @@
                                                     :postal-code "73013"}}}}
           http-response-ch (async/thread
                              (http/post (str/join "/" [root-url
-                                                       "/registrations"])
+                                                       "/registrations?language=all"])
                                         {:headers {:accept "application/edn"
                                                    :content-type "application/edn"}
                                          :body (pr-str post-data)}))
@@ -141,8 +142,9 @@
         (assert (not= http-response ::timeout))
         (is (= :ok (:state message)))
         (is (= 200 (:status http-response)))
-        (is (= (dissoc response :status) body-data)))))
-  (testing "GET to /registration-methods/:state can receive & respond with Transit"
+        (is (= (dissoc response :status) body-data))
+        (is (= :all (:language message))))))
+  (testing "POST to /registrations can receive & respond with Transit"
     (let [post-data {:state :ny
                      :method :paper
                      :voter {:email "rockiesgm@example.com"
@@ -181,7 +183,8 @@
         (assert (not= http-response ::timeout))
         (is (= :ny (:state message)))
         (is (= 200 (:status http-response)))
-        (is (= (dissoc response :status) body-data)))))
+        (is (= (dissoc response :status) body-data))
+        (is (not (contains? message :language))))))
   (testing "error from backend service results in HTTP server error response"
     (let [post-data {:state :co
                      :method :online
