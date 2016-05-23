@@ -163,7 +163,7 @@
                         (.toString transit-out "UTF-8"))
           http-response-ch (async/thread
                              (http/post (str/join "/" [root-url
-                                                      "registrations"])
+                                                       "registrations"])
                                         {:headers {:accept "application/transit+json"
                                                    :content-type "application/transit+json"}
                                          :body post-body}))
