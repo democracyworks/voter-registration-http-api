@@ -24,7 +24,8 @@ fleetctl destroy ${SERVICE}@.service || true # may not exist
 fleetctl submit ${SERVICE}@.service
 
 echo '--- (re-)starting fleet service instances'
-for i in {1..3}; do
+NODE_COUNT=$(curl -s http://${DEPLOY_ENV}.democracy.works:8500/v1/catalog/nodes | jq length)
+for i in $(seq 1 ${NODE_COUNT}); do
   fleetctl stop ${SERVICE}@$i
   fleetctl destroy ${SERVICE}@$i || true # may not exist
   fleetctl start ${SERVICE}@$i
