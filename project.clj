@@ -14,7 +14,7 @@
                  ;; not compile. Something to do with the try-catch in
                  ;; kehaar.core/go-handler.
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [democracyworks/kehaar "0.5.0"]
+                 [democracyworks/kehaar "0.7.0"]
 
                  [io.pedestal/pedestal.service "0.4.0"]
                  [io.pedestal/pedestal.service-tools "0.4.0"]
