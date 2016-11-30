@@ -5,14 +5,12 @@ Requires=docker.service
 After=consul@%i.service
 Wants=consul@%i.service
 After=rabbitmq@%i.service
-Requires=rabbitmq@%i.service
-After=wildfly@%i.service
-Requires=wildfly@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
 TimeoutStartSec=10m
 TimeoutStopSec=10m
+Restart=on-failure
 
 Environment=DOCKER_REPO=
 Environment=VERSION=
@@ -24,13 +22,15 @@ ExecStartPre=-/usr/bin/docker rm ${CONTAINER}
 ExecStartPre=/bin/bash -c 'sleep 2 && curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/buildkite/dockercfg?raw -o /root/.dockercfg'
 ExecStartPre=/usr/bin/docker pull ${DOCKER_REPO}:${VERSION}
 
-ExecStart=/bin/bash -c 'docker run --name ${CONTAINER} --restart=always \
-  --link rabbitmq:rabbitmq \
-  --link wildfly:wildfly \
+ExecStart=/bin/bash -c 'docker run --name ${CONTAINER} \
   --env ALLOWED_ORIGINS="$(curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/voter-registration-http-api/allowed-origins?raw)" \
+  --env RABBITMQ_PORT_5672_TCP_ADDR=rabbitmq.service.consul \
+  --env RABBITMQ_PORT_5672_TCP_PORT=5672 \
+  --env LEIN_ARGS="with-profile production" \
+  --publish 8080 \
   ${DOCKER_REPO}:${VERSION}'
 
 ExecStop=/usr/bin/docker stop ${CONTAINER}
 
 [X-Fleet]
-MachineOf=wildfly@%i.service
+MachineOf=consul@%i.service
