@@ -5,7 +5,8 @@
               [voter-registration-http-api.queue :as queue]
               [turbovote.resource-config :refer [config]]
               [clojure.tools.logging :as log]
-              [immutant.util :as immutant]))
+              [immutant.util :as immutant])
+  (:gen-class))
 
 (defn shutdown [rabbit-resources]
   (channels/close-all!)
