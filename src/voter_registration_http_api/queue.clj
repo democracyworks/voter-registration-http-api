@@ -1,76 +1,21 @@
 (ns voter-registration-http-api.queue
-  (:require [clojure.tools.logging :as log]
-            [langohr.core :as rmq]
-            [kehaar.core :as k]
-            [kehaar.wire-up :as wire-up]
+  (:require [langohr.core :as rmq]
+            [kehaar.configured :as kehaar]
             [kehaar.rabbitmq]
-            [voter-registration-http-api.channels :as channels]
-            [voter-registration-http-api.handlers :as handlers]
             [turbovote.resource-config :refer [config]]))
 
 (defn initialize []
   (let [max-retries 5
         rabbit-config (config [:rabbitmq :connection])
-        connection (kehaar.rabbitmq/connect-with-retries rabbit-config max-retries)]
-    (let [incoming-events []
-          incoming-services [(wire-up/incoming-service
-                              connection
-                              "voter-registration-http-api.ok"
-                              (config [:rabbitmq :queues "voter-registration-http-api.ok"])
-                              channels/ok-requests
-                              channels/ok-responses)]
-          external-services [(wire-up/external-service
-                              connection
-                              ""
-                              "voter-registration-works.registration-methods.read"
-                              (config [:rabbitmq :queues "voter-registration-works.registration-methods.read"])
-                              (config [:timeouts :registration-methods-read])
-                              channels/registration-methods-read)
-                             (wire-up/external-service
-                              connection
-                              ""
-                              "voter-registration-works.voter.register"
-                              (config [:rabbitmq :queues "voter-registration-works.voter.register"])
-                              (config [:timeouts :voter-register])
-                              channels/voter-register)
-                             (wire-up/external-service
-                              connection
-                              ""
-                              "voter-registration-works.registration-status.read"
-                              (config [:rabbitmq :queues "voter-registration-works.registration-status.read"])
-                              (config [:timeouts :status-read])
-                              channels/registration-status-read)
-                             (wire-up/external-service
-                              connection
-                              ""
-                              "voter-registration-works.registration-status.create"
-                              (config [:rabbitmq :queues "voter-registration-works.registration-status.create"])
-                              (config [:timeouts :status-create])
-                              channels/registration-status-create)
-                             (wire-up/external-service
-                              connection
-                              ""
-                              "voter-registration-works.registration-status.delete"
-                              (config [:rabbitmq :queues "voter-registration-works.registration-status.delete"])
-                              (config [:timeouts :status-delete])
-                              channels/registration-status-delete)]
-          outgoing-events []]
-
-      (wire-up/start-responder! channels/ok-requests
-                                channels/ok-responses
-                                handlers/ok)
-
-      {:connections [connection]
-       :channels (vec (concat
-                       incoming-events
-                       incoming-services
-                       external-services
-                       outgoing-events))})))
+        connection (kehaar.rabbitmq/connect-with-retries rabbit-config max-retries)
+        kehaar-resources (kehaar/init! connection (config [:rabbitmq :kehaar]))]
+    {:connections [connection]
+     :kehaar-resources kehaar-resources}))
 
 (defn close-resources! [resources]
   (doseq [resource resources]
     (when-not (rmq/closed? resource) (rmq/close resource))))
 
-(defn close-all! [{:keys [connections channels]}]
-  (close-resources! channels)
+(defn close-all! [{:keys [connections kehaar-resources]}]
+  (kehaar/shutdown! kehaar-resources)
   (close-resources! connections))
