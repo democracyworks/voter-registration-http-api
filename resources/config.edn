@@ -8,9 +8,31 @@
             :status-delete 40000}
  :rabbitmq {:connection {:host #resource-config/env "RABBITMQ_PORT_5672_TCP_ADDR"
                          :port #resource-config/edn #resource-config/env "RABBITMQ_PORT_5672_TCP_PORT"}
-            :queues {"voter-registration-http-api.ok" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.registration-methods.read" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.voter.register" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.registration-status.read" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.registration-status.create" {:exclusive false :durable true :auto-delete false}
-                     "voter-registration-works.registration-status.delete" {:exclusive false :durable true :auto-delete false}}}}
+            :kehaar {:incoming-services
+                     [{:queue "voter-registration-http-api.ok"
+                       :f voter-registration-http-api.handlers/ok
+                       :response true
+                       :threads 2
+                       :prefetch-limit 2}]
+
+                     :external-services
+                     [{:queue "voter-registration-works.registration-methods.read"
+                       :channel voter-registration-http-api.channels/registration-methods-read
+                       :response true
+                       :timeout 40000}
+                      {:queue "voter-registration-works.voter.register"
+                       :channel voter-registration-http-api.channels/voter-register
+                       :response true
+                       :timeout 40000}
+                      {:queue "voter-registration-works.registration-status.read"
+                       :channel voter-registration-http-api.channels/registration-status-read
+                       :response true
+                       :timeout 40000}
+                      {:queue "voter-registration-works.registration-status.create"
+                       :channel voter-registration-http-api.channels/registration-status-create
+                       :response true
+                       :timeout 40000}
+                      {:queue "voter-registration-works.registration-status.delete"
+                       :channel voter-registration-http-api.channels/registration-status-delete
+                       :response true
+                       :timeout 40000}]}}}
