@@ -14,4 +14,6 @@ COPY . /usr/src/voter-registration-http-api
 RUN lein with-profiles $env,test test
 RUN lein with-profile $env uberjar
 
-CMD ["java", "-XX:+UseG1GC", "-javaagent:resources/jars/com.newrelic.agent.java/newrelic-agent.jar", "-jar", "target/voter-registration-http-api.jar"]
+CMD java ${JVM_OPTS:--XX:+UseG1GC} \
+    -javaagent:resources/jars/com.newrelic.agent.java/newrelic-agent.jar \
+    -jar target/voter-registration-http-api.jar
