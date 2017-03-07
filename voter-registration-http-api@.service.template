@@ -30,6 +30,7 @@ ExecStart=/bin/bash -c 'docker run --name ${CONTAINER} \
   --env RABBITMQ_PORT_5672_TCP_PORT=5672 \
   --env LEIN_ARGS="with-profile production" \
   --publish 8080 \
+  --publish 10000 \
   ${DOCKER_REPO}:${VERSION}'
 
 ExecStop=/usr/bin/docker stop ${CONTAINER}
