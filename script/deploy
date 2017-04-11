@@ -39,10 +39,10 @@ if [[ -n ${DEPLOY_ENV} ]]; then
   DOCKER_IMAGE="${DOCKER_REPO}:${IMAGE_TAG}"
   echo "--- tagging and pushing ${DOCKER_REPO}:${DEPLOY_ENV}"
   docker pull ${DOCKER_IMAGE} # in case it isn't on this host yet
-  docker tag -f ${DOCKER_IMAGE} ${DOCKER_REPO}:${DEPLOY_ENV}
+  docker tag ${DOCKER_IMAGE} ${DOCKER_REPO}:${DEPLOY_ENV}
   docker push ${DOCKER_REPO}:${DEPLOY_ENV}
   if [[ "${DEPLOY_ENV}" = "production" ]]; then
-    docker tag -f ${DOCKER_IMAGE} ${DOCKER_REPO}:latest
+    docker tag ${DOCKER_IMAGE} ${DOCKER_REPO}:latest
     docker push ${DOCKER_REPO}:latest
   fi
 fi
