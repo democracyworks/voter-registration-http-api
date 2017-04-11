@@ -4,7 +4,6 @@ After=docker.service
 Requires=docker.service
 After=consul@%i.service
 Wants=consul@%i.service
-After=rabbitmq@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
@@ -25,7 +24,7 @@ ExecStartPre=/usr/bin/docker pull ${DOCKER_REPO}:${VERSION}
 ExecStart=/bin/bash -c 'docker run --name ${CONTAINER} \
   --dns $COREOS_PRIVATE_IPV4 \
   --env ALLOWED_ORIGINS="$(curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/voter-registration-http-api/allowed-origins?raw)" \
-  --env RABBITMQ_PORT_5672_TCP_ADDR=rabbitmq.service.consul \
+  --env RABBITMQ_PORT_5672_TCP_ADDR=tvprodrmq.democracy.works \
   --env NEW_RELIC_LICENSE_KEY=$(curl -s http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/new-relic/license-key?raw) \
   --env RABBITMQ_PORT_5672_TCP_PORT=5672 \
   --env LEIN_ARGS="with-profile production" \
