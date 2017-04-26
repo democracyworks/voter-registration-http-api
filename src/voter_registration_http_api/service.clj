@@ -33,7 +33,7 @@
                                                        "application/json"
                                                        "text/plain"])
                      (bifrost.i/update-in-request [:query-params]
-                                                   language-coercer)]
+                                                  language-coercer)]
      ["/ping" {:get [:ping ping]}]
      ["/registration-methods/:state"
       {:get [:get-registration-methods (bifrost/interceptor
