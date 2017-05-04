@@ -1,4 +1,4 @@
-FROM clojure:lein-2.7.1-alpine
+FROM quay.io/democracyworks/clojure-yourkit:lein-2.7.1
 
 RUN mkdir -p /usr/src/voter-registration-http-api
 WORKDIR /usr/src/voter-registration-http-api
@@ -16,4 +16,5 @@ RUN lein with-profile $env uberjar
 
 CMD java ${JVM_OPTS:--XX:+UseG1GC} \
     -javaagent:resources/jars/com.newrelic.agent.java/newrelic-agent.jar \
+    $YOURKIT_AGENT_OPTION \
     -jar target/voter-registration-http-api.jar
