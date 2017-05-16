@@ -13,8 +13,10 @@
   <logger name="io.pedestal.impl.interceptor" level="INFO"/>
   <logger name="io.pedestal.http.impl.servlet-interceptor" level="INFO"/>
   <logger name="io.pedestal.test" level="INFO"/>
+
+  <logger name="voter-registration-http-api" level="${log-level:-DEBUG}"/>
   
-  <root level="${log-level:-DEBUG}">
+  <root level="${log-level:-INFO}">
     <appender-ref ref="Console"/>
   </root>
 </configuration>

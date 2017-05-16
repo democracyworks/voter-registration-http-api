@@ -39,4 +39,4 @@
              :dev {:resource-paths ["dev-resources"]}
              :test {:dependencies [[clj-http "3.4.1"]]
                     :resource-paths ["test-resources"]
-                    :jvm-opts ["-Dlog-level=INFO"]}})
+                    :jvm-opts ["-Dlog-level=OFF"]}})
