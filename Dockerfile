@@ -15,6 +15,8 @@ RUN lein with-profiles $env,test test
 RUN lein with-profile $env uberjar
 
 CMD java ${JVM_OPTS:--XX:+UseG1GC} \
+    -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap \
+    -XX:MaxRAMFraction=1 \
     -javaagent:resources/jars/com.newrelic.agent.java/newrelic-agent.jar \
     $YOURKIT_AGENT_OPTION \
     -jar target/voter-registration-http-api.jar
